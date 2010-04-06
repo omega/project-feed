@@ -1,0 +1,7 @@
+h1. Project::Feed
+
+This project consists of three components:
+
+* A Plagger config for fetching everything into one consistent Atom feed
+* A PSGI app for serving that single atom file :p
+* An AnyEvent based bot that can connect to IRC and XMPP chat rooms and listens to the Atom feed
