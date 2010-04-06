@@ -83,7 +83,8 @@ class ::Connection::XMPP with ::Connection {
         
         my $room = $self->get_room($self->connection, $self->room);
         
-        my $mess = $room->make_message(body => $text)
+        my $mess = $room->make_message(body => $text);
+        $mess->send;
     }
     
     
