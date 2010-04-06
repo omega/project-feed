@@ -1,1 +1,1 @@
-[% entry.title_text %][% IF entry.author %] (03[% entry.author %])[% END %][% IF entry.tags %] [[% entry.tags.join(', ') %]] [% END %] - 14[% entry.permalink %]
+[% IF entry.tags.grep('.+').size > 0 %]12[% entry.tags.grep('.+').join(', ') %]: [% END %][% IF entry.author %][03[% entry.author %]] [% END %][% entry.title_text %] - 14[% entry.permalink %]
