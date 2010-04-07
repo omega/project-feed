@@ -1,2 +1,4 @@
-output
+output/*
+!output/.placeholder
 var
+!var/.placeholder
