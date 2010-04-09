@@ -14,6 +14,31 @@ role ::Connection {
     
     has 'is_connected' => (is => 'rw', isa => 'Bool', default => 0);
     
+    has '_backlog' => (traits => [qw/Array/], is => 'ro', isa => 'ArrayRef', default => sub { [] },
+        handles => {
+            'queue' => 'push',
+            'dequeue' => 'shift',
+            'queue_length' => 'count',
+            '_get_queued' => 'get',
+        }
+    );
+    has '_timer' => (is => 'rw');
+    method queue_message(Str $str) {
+        $self->queue($str);
+        while ($self->queue_length > 3) {
+            $self->dequeue;
+        }
+    }
+    after establish_connection() {
+        # We want to send messages at most so and so often, so we don't spam the channel
+        $self->_timer(AnyEvent->timer(
+            after => 0,
+            interval => 5,
+            cb => sub {
+                $self->timer;
+            }
+        ));
+    }
     
     has 'renderer' => (is => 'ro', builder => '_build_renderer', lazy => 1, handles => [qw/process/]);
     method _build_renderer() {
@@ -38,11 +63,25 @@ role ::Connection {
         $self->send_message($self->render(lc($self->class) . ".tt", { entry => $entry }));
     }
     multi method send_message(Str $str) {
-        $self->send_message_str($str);
+        #warn "queue: $str\n";
+        # We only queue it, muaha! :)
+        
+        $self->queue_message($str);
     }
     method demolish_connection() {
         
     }
+    
+    
+    
+    method timer() {
+        return unless $self->is_connected();
+        my $msg = $self->dequeue;
+        return unless $msg;
+        $self->send_message_str($msg);
+        
+    }
+    
     
 }
 
