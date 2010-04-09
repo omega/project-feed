@@ -92,6 +92,17 @@ class ::Connection::XMPP with ::Connection {
         my $room = $self->get_room($self->connection, $self->room);
         
         my $mess = $room->make_message(body => $text);
+        $mess->append_creation({
+            node => {
+                ns => 'http://jabber.org/protocol/xhtml-im',
+                name => 'html',
+                childs => [{
+                    ns => 'http://www.w3.org/1999/xhtml',
+                    name => 'body',
+                    childs => [$rich],
+                },],
+            },
+        });
         $mess->send;
     }
     
