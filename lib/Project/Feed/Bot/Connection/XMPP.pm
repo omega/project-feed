@@ -105,7 +105,7 @@ class ::Connection::XMPP with ::Connection {
         
         $self->reg_muc_cb( message => sub {
             $self->muc_message(@_);
-        })
+        });
         
     }
         method muc_message($muc, $room, $msg, $is_echo) {
