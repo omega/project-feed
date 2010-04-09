@@ -30,7 +30,6 @@ role Project::Feed::Bot {
             url => $self->feed->{url},
             interval => $self->feed->{interval},
             on_fetch => sub {
-                warn "fetching..\n";
                 $self->new_entries(@_);
             },
         );
@@ -58,7 +57,7 @@ role Project::Feed::Bot {
             warn "ERROR: $error\n";
             return;
         }
-        warn "new: " . scalar(@$new_entries) . "\n";
+        warn "new: " . scalar(@$new_entries) . "\n" if scalar(@$new_entries);
         for (reverse @$new_entries) { # We want oldest first
             my ($hash, $entry) = @$_;
             # Should here send a message
