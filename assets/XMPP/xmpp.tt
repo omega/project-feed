@@ -1,0 +1,1 @@
+[% IF entry.tags AND entry.tags.grep('.+').size > 0 %][% entry.tags.grep('.+').join(', ') %]: [% END %][% entry.title %] [<span style="color: red">[% entry.author%]</span>]

@@ -7,6 +7,8 @@ class ::Connection::XMPP with ::Connection {
     use AnyEvent::XMPP::Ext::Disco;
     use AnyEvent::XMPP::Ext::MUC;
     
+    use HTML::Scrubber;
+    
     has 'conn' => (
         is => 'ro', isa => 'AnyEvent::XMPP::Client', lazy => 1, builder => '_build_conn',
         handles => [qw/start reg_cb set_presence add_account get_account/],
@@ -24,13 +26,18 @@ class ::Connection::XMPP with ::Connection {
     has [qw/jid password room nick/] => (is => 'ro', required => 1);
 #    has 'port' => (is => 'ro', default => 5222);
 
+    has 'scrubber' => (is => 'ro', isa => 'HTML::Scrubber', builder => '_build_scrubber', lazy => 1, handles => [qw/scrub/]);
+    method _build_scrubber() {
+        HTML::Scrubber->new(allow => []);
+    }
+    
     method BUILD($args) {
     }
     
     method _build_disco() { return AnyEvent::XMPP::Ext::Disco->new }
     method _build_muc() { return AnyEvent::XMPP::Ext::MUC->new( disco => $self->disco ); }
     method _build_conn() {
-        my $con = AnyEvent::XMPP::Client->new( debug => 0 );
+        my $con = AnyEvent::XMPP::Client->new( debug => 1 );
         $con->add_extension ($self->disco);
         $con->add_extension ($self->muc);
         
@@ -75,9 +82,13 @@ class ::Connection::XMPP with ::Connection {
     method is_connected() {
         return $self->account->is_connected;
     }
-    multi method send_message_str(Str $text) {
+    multi method send_message_str(Str $rich) {
+        # need to make one that is clean, and one that is rich.. $rich is presumed to be rich now.
+        
+        my $text = $self->scrub($rich);
+        warn "scrubbed: $text\n";
         unless ($self->is_connected) {
-            warn "XMPP not connected!\n";
+            #warn "XMPP not connected!\n";
             return;
         }
         
