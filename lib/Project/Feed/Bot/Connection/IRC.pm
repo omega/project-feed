@@ -57,6 +57,7 @@ class ::Connection::IRC with ::Connection {
             print "Couldn't connect to server: $error\n";
             return;
         }
+        $self->is_connected(1);
         print "connected ;)\n";
     }
 

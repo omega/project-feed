@@ -79,9 +79,6 @@ class ::Connection::XMPP with ::Connection {
         warn "not connected!!\n" unless $acc->is_connected;
         return $acc->connection
     }
-    method is_connected() {
-        return $self->account->is_connected;
-    }
     multi method send_message_str(Str $rich) {
         # need to make one that is clean, and one that is rich.. $rich is presumed to be rich now.
         
@@ -103,6 +100,7 @@ class ::Connection::XMPP with ::Connection {
     
     method session_ready($client, $acc) {
         print "connected XMPP ;)\n";
+        $self->is_connected(1);
         $self->join_room( $acc->connection, $self->room, $self->nick);
         
         $self->reg_muc_cb( message => sub {
