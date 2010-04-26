@@ -2,6 +2,11 @@ use MooseX::Declare;
 
 role Project::Feed::Bot {
     
+    use Moose::Util::TypeConstraints;
+    class_type 'XML::Atom::Entry', { class => 'XML::Atom::Entry' };
+    class_type 'XML::Feed::Entry::Format::RSS', { class => 'XML::Feed::Entry::Format::RSS' };
+    class_type 'XML::Feed::Entry::Format::Atom', { class => 'XML::Feed::Entry::Format::Atom' };
+    
     use AnyEvent;
     use AnyEvent::Strict;
     use Project::Feed::Types qw/BotConnectionSet MyFeed/;
