@@ -16,25 +16,31 @@ role Project::Feed::Bot {
             'all_connections' => 'elements'
         }
     );
+    has 'interval' => (is => 'ro', isa => 'Int');
     
     has 'condvar' => (
         is => 'ro', default => sub { AnyEvent->condvar }, handles => [qw/wait broadcast/] 
     );
     
-    has 'feed' => (is => 'ro', isa => 'HashRef', required => 1, );
-    has '_feed' => (
-        is => 'ro', isa => MyFeed, lazy => 1, builder => '_build_feed', handles => [qw/fetch/],
+    has 'feeds' => (is => 'ro', isa => 'ArrayRef', required => 1, );
+    has '_feeds' => (
+        is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_feed', handles => [qw/fetch/],
     );
     method _build_feed() {
-        my $feed = Project::Feed::Bot::Feed->new(
-            url => $self->feed->{url},
-            interval => $self->feed->{interval},
-            on_fetch => sub {
-                $self->new_entries(@_);
-            },
-        );
-        $feed->conn; # XXX: ugly, but I'm tired!
-        $feed;
+        my @feeds;
+        foreach (@{ $self->feeds }) {
+            my $feed = Project::Feed::Bot::Feed->new(
+                url => delete $_->{url},
+                interval => delete ($_->{interval}) || $self->interval,
+                on_fetch => sub {
+                    $self->new_entries(@_);
+                },
+                %$_, # Lets just bring in everything else!
+            );
+            $feed->conn; # XXX: ugly, but I'm tired!
+            push(@feeds, $feed);
+        }
+        return \@feeds;
     }
     
 
@@ -43,7 +49,7 @@ role Project::Feed::Bot {
         foreach my $con ($self->all_connections) {
             $con->establish_connection();
         }
-        $self->_feed;
+        $self->_feeds;
         
         $self->wait;
         
