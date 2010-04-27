@@ -25,13 +25,14 @@ class ::Connection::HTTPD with ::Connection {
             '_sort_entry_queue' => 'sort_in_place',
         }
     );
-
-    method queue_entry(Object $entry) {
-        # First we sort the array, so that the oldest gets pumped out :p
+    method resort_queue() {
         $self->_sort_entry_queue( sub {
             $_[1]->updated cmp $_[0]->updated
         });
+    }
+    method queue_entry(Object $entry) {
         $self->_queue_entry($entry);
+        $self->resort_queue(); # The one we just added might not be the latest time-wise, so sort after adding
         while ($self->feed_queue_length > 20) {
             $self->dequeue_entry;
         }
