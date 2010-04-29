@@ -2,3 +2,7 @@ output/*
 !output/.placeholder
 var
 !var/.placeholder
+META.*
+Makefile
+Makefile.old
+inc/

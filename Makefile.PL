@@ -14,3 +14,4 @@ requires 'AnyEvent::XMPP';
 requires 'AnyEvent::HTTPD';
 requires 'AnyEvent::IRC';
 
+WriteAll;
