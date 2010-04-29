@@ -53,7 +53,9 @@ role ::Connection {
     }
     method render($template, $vars) {
         my $out;
-        $self->process($template, $vars, \$out) || confess("Error rendering template $template: " . $self->renderer->error());
+        $self->process($template, $vars, \$out) || confess("Error rendering template $template: " 
+            . $self->renderer->error()
+        );
         return $out;
     }
     multi method send_message(Object $entry) {
