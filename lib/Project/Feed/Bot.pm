@@ -9,8 +9,9 @@ role Project::Feed::Bot {
     
     use AnyEvent;
     use AnyEvent::Strict;
-    use Project::Feed::Types qw/BotConnectionSet MyFeed/;
+    use Project::Feed::Types qw/BotConnectionSet MyFeed Topic/;
     use Project::Feed::Bot::Feed;
+    use Project::Feed::Bot::Topic;
     
     has 'connections' => (
         traits => [qw/Array/],
@@ -27,12 +28,15 @@ role Project::Feed::Bot {
         is => 'ro', default => sub { AnyEvent->condvar }, handles => [qw/wait broadcast/] 
     );
     
-    has 'feeds' => (is => 'ro', isa => 'ArrayRef', required => 1, );
+    has 'topic' => (is => 'ro', isa => Topic, coerce => 1, required => 0, predicate => 'has_topic', );
+    
+    has 'feeds' => (is => 'ro', isa => 'Maybe[ArrayRef]', required => 0, predicate => 'has_feeds', );
     has '_feeds' => (
         is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_feed', handles => [qw/fetch/],
     );
     method _build_feed() {
         my @feeds;
+        return \@feeds unless $self->has_feeds and ref($self->feeds);
         foreach (@{ $self->feeds }) {
             my $feed = Project::Feed::Bot::Feed->new(
                 url => delete $_->{url},
@@ -54,9 +58,22 @@ role Project::Feed::Bot {
         foreach my $con ($self->all_connections) {
             $con->establish_connection();
         }
-        $self->_feeds;
+        if ($self->has_feeds) {
+            $self->_feeds;
+        }
+
+        # Lets set up our topic
+        if ($self->has_topic) {
+            $self->topic->on_fail(sub {
+                $self->topic_fail
+            });
+            $self->topic->on_unfail(sub {
+                $self->topic_recover
+            });
+        }
         
         $self->wait;
+        
         
         #$self->broadcast;
         
@@ -77,6 +94,17 @@ role Project::Feed::Bot {
             }
         }
         
+    }
+    
+    method topic_fail() {
+        foreach my $con ($self->all_connections) {
+            $con->topic_fail() if $con->can('topic_fail');
+        }
+    }
+    method topic_recover() {
+        foreach my $con ($self->all_connections) {
+            $con->topic_recover() if $con->can('topic_recover');
+        }
     }
 }
 

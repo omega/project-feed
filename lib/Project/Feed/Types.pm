@@ -6,12 +6,13 @@ use MooseX::Types
         BotConnectionSet
         
         MyFeed
+        Topic
         
         XMLFeedEntry
     /]
 ;
 
-use MooseX::Types::Moose qw/Object HashRef ArrayRef/;
+use MooseX::Types::Moose qw/Undef Object HashRef ArrayRef/;
 
 class_type XMLFeedEntry, { class => 'XML::Feed::Entry::Atom' };
 
@@ -36,6 +37,12 @@ coerce BotConnectionSet,
         $_;
     }
 ;
+coerce BotConnectionSet,
+    from Undef,
+    via {
+        return [];
+    }
+;
 
 class_type MyFeed, { class => 'Project::Feed::Bot::Feed' };
 
@@ -47,4 +54,11 @@ coerce MyFeed,
     }
 ;
 
+class_type Topic, { class => 'Project::Feed::Bot::Topic' };
+coerce Topic,
+    from HashRef,
+    via {
+        Project::Feed::Bot::Topic->new(%$_);
+    }
+;
 1;
