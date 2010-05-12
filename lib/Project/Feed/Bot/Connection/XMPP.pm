@@ -8,6 +8,8 @@ class ::Connection::XMPP with ::Connection {
     use AnyEvent::XMPP::Ext::MUC;
     
     use HTML::Scrubber;
+    has 'test_fail_bit' => (is => 'ro', isa => 'Str', default => 'BROKEN TESTS');
+    has 'room_subject' => (is => 'rw', isa => 'Str');
     
     has 'conn' => (
         is => 'ro', isa => 'AnyEvent::XMPP::Client', lazy => 1, builder => '_build_conn',
@@ -17,7 +19,7 @@ class ::Connection::XMPP with ::Connection {
         is => 'ro', lazy => 1, builder => '_build_muc', 
         handles => {
             join_room  => 'join_room',
-            get_room   => 'get_room',
+            '__get_room'   => 'get_room',
             reg_muc_cb => 'reg_cb',
         },
     );
@@ -89,8 +91,7 @@ class ::Connection::XMPP with ::Connection {
             return;
         }
         
-        my $room = $self->get_room($self->connection, $self->room);
-        
+        my $room = $self->get_room();
         my $mess = $room->make_message(body => $text);
         $mess->append_creation(sub {
                 my ($w) = @_;
@@ -107,6 +108,29 @@ class ::Connection::XMPP with ::Connection {
         $mess->send;
     }
     
+    method topic_fail() {
+        # for now just send a message
+        return unless ($self->is_connected);
+        
+        my $room = $self->get_room();
+        $room->change_subject($self->test_fail_bit . " - " . $self->room_subject);
+    }
+    method topic_recover() {
+        return unless $self->is_connected;
+        my $room = $self->get_room();
+        # 
+        my $subj = $self->room_subject;
+        my $fail = $self->test_fail_bit;
+        
+        $subj =~ s/^$fail - //;
+        
+        $room->change_subject($subj);
+    }
+    
+    method get_room() {
+        my $room = $self->__get_room($self->connection, $self->room);
+        
+    }
     
     #### HOOKS
     
@@ -115,14 +139,24 @@ class ::Connection::XMPP with ::Connection {
         $self->is_connected(1);
         $self->join_room( $acc->connection, $self->room, $self->nick);
         
-        $self->reg_muc_cb( message => sub {
-            $self->muc_message(@_);
-        });
+        $self->reg_muc_cb( 
+            message => sub { $self->muc_message(@_); },
+            subject_change => sub { $self->subject_change(@_); },
+        );
         
     }
         method muc_message($muc, $room, $msg, $is_echo) {
             return if $is_echo;
             #print "Got message: " . $msg->any_body . "\n";
+        }
+        method subject_change($much, $room, $msg, $is_echo) {
+            return if $is_echo; # we don't want to do anything if WE set the subject, right?
+
+            # our subject is in $msg->any_subject
+            my $new = $msg->any_subject;
+            #my $fail = $self->test_fail_bit;
+            
+            $self->room_subject($new);
         }
     method error($client, $acc, $error) {
         warn "error: $error\n";
