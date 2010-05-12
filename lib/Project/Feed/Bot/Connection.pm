@@ -22,13 +22,14 @@ role ::Connection {
             '_get_queued' => 'get',
         }
     );
-    has '_timer' => (is => 'rw');
     method queue_message(Str $str) {
         $self->queue($str);
         while ($self->queue_length > 3) {
             $self->dequeue;
         }
     }
+
+    has '_timer' => (is => 'rw');
     after establish_connection() {
         # We want to send messages at most so and so often, so we don't spam the channel
         $self->_timer(AnyEvent->timer(
