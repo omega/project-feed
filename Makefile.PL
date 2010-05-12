@@ -11,7 +11,13 @@ requires 'MooseX::MultiMethods';
 
 requires 'AnyEvent::Feed';
 requires 'AnyEvent::XMPP';
+    # Missing from XMPP
+    requires 'XML::Twig';
+
 requires 'AnyEvent::HTTPD';
 requires 'AnyEvent::IRC';
+
+requires 'DateTime::Format::Atom';
+requires 'HTML::Scrubber';
 
 WriteAll;
