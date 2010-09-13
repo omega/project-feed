@@ -1,13 +1,13 @@
 use MooseX::Declare;
 namespace Project::Feed::Bot;
-class ::Connection::XMPP with ::Connection {
+class ::Connection::XMPP with ::Connection with ::Meta::Scrubber {
     use MooseX::MultiMethods;
     
     use AnyEvent::XMPP::Client;
     use AnyEvent::XMPP::Ext::Disco;
     use AnyEvent::XMPP::Ext::MUC;
     
-    use HTML::Scrubber;
+    
     has 'test_fail_bit' => (is => 'ro', isa => 'Str', default => 'BROKEN TESTS');
     has 'room_subject' => (is => 'rw', isa => 'Str');
     
@@ -28,10 +28,6 @@ class ::Connection::XMPP with ::Connection {
     has [qw/jid password room nick/] => (is => 'ro', required => 1);
 #    has 'port' => (is => 'ro', default => 5222);
 
-    has 'scrubber' => (is => 'ro', isa => 'HTML::Scrubber', builder => '_build_scrubber', lazy => 1, handles => [qw/scrub/]);
-    method _build_scrubber() {
-        HTML::Scrubber->new(allow => []);
-    }
     
     method BUILD($args) {
     }

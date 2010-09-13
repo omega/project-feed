@@ -8,6 +8,9 @@ use MooseX::Types
         MyFeed
         Topic
         
+        Filter
+        FilterList
+        
         XMLFeedEntry
     /]
 ;
@@ -59,6 +62,27 @@ coerce Topic,
     from HashRef,
     via {
         Project::Feed::Bot::Topic->new(%$_);
+    }
+;
+
+role_type Filter, { role => 'Project::Feed::Bot::Filter' };
+coerce Filter,
+    from HashRef,
+    via {
+        my $class = 'Project::Feed::Bot::Filter::' . delete $_->{type} or die "cannot coerce Filter without a type argument";
+        Class::MOP::load_class('Project::Feed::Bot::Filter');
+        $class->new(%$_);
+    }
+;
+
+subtype FilterList, as ArrayRef[Filter];
+coerce FilterList,
+    from ArrayRef,
+    via {
+        map {
+            $_ = to_Filter($_);
+        } @$_;
+        $_;
     }
 ;
 1;
