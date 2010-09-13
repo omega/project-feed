@@ -80,12 +80,7 @@ role Project::Feed::Bot {
         
     }
 
-    method new_entries($feed_reader, $new_entries, $feed, $error?) {
-        if (defined $error) {
-            warn "ERROR: $error\n";
-            return;
-        }
-        warn "new: " . scalar(@$new_entries) . "\n" if scalar(@$new_entries);
+    method new_entries($feed_reader, $new_entries, $feed) {
         for (reverse @$new_entries) { # We want oldest first
             my ($hash, $entry) = @$_;
             # Should here send a message
