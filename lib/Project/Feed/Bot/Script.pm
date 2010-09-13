@@ -8,7 +8,7 @@ class Project::Feed::Bot::Script with MooseX::SimpleConfig with MooseX::Getopt w
         isa => File,
         coerce => 1,
         predicate => 'has_configfile',
-        default => 'project-bot.yaml',
+        default => 'etc/project-bot.yaml',
     );
     
     sub run {
