@@ -1,5 +1,5 @@
 use MooseX::Declare;
-namespace Project::Feed::Bot;
+namespace Project::Feed;
 
 role ::Filter {
     requires 'filter';

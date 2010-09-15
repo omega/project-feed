@@ -1,0 +1,11 @@
+#!/usr/bin/env perl
+
+use 5.010;
+use strict;
+use warnings;
+use Project::Feed::Script;
+
+Project::Feed::Script->new_with_options->run;
+
+1;
+

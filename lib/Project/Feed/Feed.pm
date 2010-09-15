@@ -1,6 +1,6 @@
 use MooseX::Declare;
 
-class Project::Feed::Bot::Feed {
+class Project::Feed::Feed {
     use AnyEvent::Feed;
     use Project::Feed::Types qw(FilterList);
     

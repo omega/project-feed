@@ -1,9 +1,7 @@
 use MooseX::Declare;
 
-namespace Project::Feed::Bot;
-# A lot of this is based on Bot::IRC::Lite:
-#    http://github.com/dann/p5-bot-irc-lite/
-class ::Connection::HTTPD with ::Connection {
+namespace Project::Feed;
+class ::HTTPD {
     use MooseX::MultiMethods;
     has port => (is => 'ro', required => 1, default => 9090);
     has title => (is => 'ro', required => 1, default => 'Project feed');
@@ -72,12 +70,9 @@ class ::Connection::HTTPD with ::Connection {
         );
     }
     
-    method establish_connection() {
+    method setup() {
         $self->conn;
         
-    }
-    method send_message_str(Str $text) {
-        # We just ignore it, muhaha!
     }
     multi method send_message(XML::Atom::Entry $entry) {
 
@@ -99,4 +94,12 @@ class ::Connection::HTTPD with ::Connection {
         # Should convert to XML::Atom::Entry
         confess("We do not know how to convert from $entry to XML::Atom::Entry");
     }
+        
+    has 'is_connected' => (is => 'rw', isa => 'Bool', default => 0);
+    
+    method demolish_connection() {
+        
+    }    
 }
+
+1;
