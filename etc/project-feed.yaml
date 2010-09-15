@@ -1,0 +1,12 @@
+interval: 30
+feeds:
+    -
+        url: 'https://bugs.startsiden.no/plugins/servlet/streams?key=ABCT&os_authType=basic'
+        username: <youbetcha>
+        password: <topsecrit>
+        filter:
+            - type: JIRA
+    -
+        url: 'https://github.com/organizations/abctech/omega.private.atom?token=<some-token>'
+        filter:
+            - type: AuthorRemove

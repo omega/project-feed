@@ -6,3 +6,5 @@ META.*
 Makefile
 Makefile.old
 inc/
+etc/*
+!etc/project-feed.yaml
