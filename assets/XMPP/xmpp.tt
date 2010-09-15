@@ -1,3 +1,0 @@
-[% IF entry.tags AND entry.tags.grep('.+').size > 0 %][% entry.tags.grep('.+').join(', ') %]: [% END %][% entry.title %]
-[% IF entry.author %][<span style="color: red">[% entry.author%]</span>][% END %]
-[% IF entry.link %] - <a href="[% entry.link | xml %]">More</a>[% END %]

@@ -57,14 +57,6 @@ coerce MyFeed,
     }
 ;
 
-class_type Topic, { class => 'Project::Feed::Bot::Topic' };
-coerce Topic,
-    from HashRef,
-    via {
-        Project::Feed::Bot::Topic->new(%$_);
-    }
-;
-
 role_type Filter, { role => 'Project::Feed::Bot::Filter' };
 coerce Filter,
     from HashRef,
