@@ -5,7 +5,7 @@ role Project::Feed {
     
     use AnyEvent;
     use AnyEvent::Strict;
-    use Project::Feed::Types qw/MyFeed MyHTTPD/;
+    use Project::Feed::Types qw/MyFeed MyHTTPD FilterList/;
     use Project::Feed::Feed;
     use Project::Feed::HTTPD;
     
@@ -24,6 +24,7 @@ role Project::Feed {
     has 'condvar' => (
         is => 'ro', default => sub { AnyEvent->condvar }, handles => [qw/wait broadcast/] 
     );
+    has 'filter'   => (is => 'ro', isa => FilterList, coerce => 1);
     
     has 'feeds' => (is => 'ro', isa => 'Maybe[ArrayRef]', required => 0, predicate => 'has_feeds', );
     has '_feeds' => (
@@ -68,6 +69,12 @@ role Project::Feed {
         for (reverse @$new_entries) { # We want oldest first
             my ($hash, $entry) = @$_;
             # Should here send a message
+            if ($self->filter) {
+                foreach my $f (@{$self->filter}) {
+                    $f->filter(@$_);
+                }
+            }
+            
             $self->httpd->send_message($entry);
         }
         
