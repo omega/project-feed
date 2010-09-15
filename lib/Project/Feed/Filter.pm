@@ -25,3 +25,26 @@ class ::Filter::AuthorRemove with ::Filter {
         $entry->title( $t );
     }
 }
+
+class ::Filter::AuthorMap with ::Filter {
+    has 'mapping' => (
+        is => 'ro',
+        isa => 'HashRef',
+        initializer => '_init_mapping',
+    );
+    
+    method _init_mapping($value, $setter, $attr) {
+        # Need to rework value, then set it
+        my $new_value = {};
+        foreach my $nick (%$value) {
+            foreach my $author_name (@{ $value->{$nick} }) {
+                $new_value->{$author_name} = $nick;
+            }
+        }
+        $setter->($new_value);
+    }
+    
+    method filter($hash, $entry) {
+        $entry->author( $self->mapping->{ $entry->author }) if exists $self->mapping->{ $entry->author };
+    }
+}
