@@ -9,15 +9,15 @@ requires('MooseX::Declare');
 requires('MooseX::SimpleConfig');
 requires 'MooseX::MultiMethods';
 
-requires 'AnyEvent::Feed';
-requires 'AnyEvent::XMPP';
-    # Missing from XMPP
-    requires 'XML::Twig';
+requires 'MooseX::Getopt';
 
+requires 'AnyEvent::Feed';
 requires 'AnyEvent::HTTPD';
-requires 'AnyEvent::IRC';
 
 requires 'DateTime::Format::Atom';
 requires 'HTML::Scrubber';
+
+requires 'YAML::XS';
+requires 'Net::SSLeay';
 
 WriteAll;
