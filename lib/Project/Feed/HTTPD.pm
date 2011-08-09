@@ -6,13 +6,13 @@ class ::HTTPD {
     has port => (is => 'ro', required => 1, default => 9090);
     has title => (is => 'ro', required => 1, default => 'Project feed');
     has hostname => (is => 'ro', required => 1, default => 'localhost');
-    
+
     use AnyEvent::HTTPD;
     use XML::Atom::Feed;
     use XML::Atom::Entry;
     use XML::Atom::Link;
     use DateTime::Format::Atom;
-    
+
     has '_feed' => (traits => [qw/Array/], is => 'ro', isa => 'ArrayRef', default => sub { [] },
         handles => {
             '_queue_entry' => 'unshift',
@@ -40,12 +40,12 @@ class ::HTTPD {
         is => 'ro', lazy => 1, builder => '_setup_httpd',
         handles => [qw/reg_cb/]
     );
-    
+
     method _setup_httpd() {
         my $h = AnyEvent::HTTPD->new( port => $self->port );
-        
+
         # Lets also set up some hooks
-        
+
         $h->reg_cb(
             '/' => sub {
                 my ($httpd, $req) = @_;
@@ -57,27 +57,27 @@ class ::HTTPD {
                 $link->type('application/atom+xml');
                 $link->rel('self');
                 $link->href('http://' . $self->hostname . ':' . $self->port . $req->url);
-                
+
                 $feed->add_link($link);
                 $feed->updated($self->_get_queued_entry(0)->updated);
-                
+
                 foreach my $e ($self->entry_queue) {
                     $feed->add_entry($e);
                 }
-                
+
                 $req->respond([200, 'ok', { 'Content-Type' => 'application/atom+xml' }, $feed->as_xml]);
             }
         );
     }
-    
+
     method setup() {
         $self->conn;
-        
+
     }
     multi method send_message(XML::Atom::Entry $entry) {
 
         my $u = $entry->updated || $entry->published;
-        
+
         # should streamline $entry->updated here?
         my $dt = DateTime::Format::Atom->parse_datetime($u);
         $entry->updated($dt);
@@ -94,12 +94,12 @@ class ::HTTPD {
         # Should convert to XML::Atom::Entry
         confess("We do not know how to convert from $entry to XML::Atom::Entry");
     }
-        
+
     has 'is_connected' => (is => 'rw', isa => 'Bool', default => 0);
-    
+
     method demolish_connection() {
-        
-    }    
+
+    }
 }
 
 1;

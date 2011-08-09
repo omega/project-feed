@@ -15,13 +15,13 @@ class Project::Feed::Script with MooseX::SimpleConfig with MooseX::Getopt with P
         predicate => 'has_configfile',
         default => 'etc/project-feed.yaml',
     );
-    
+
     sub run {
         my ($self) = @_;
 
         $self->start_bot();
     }
-    
+
 }
 
 
