@@ -1,14 +1,14 @@
 use MooseX::Declare;
 
 role Project::Feed {
-    
-    
+
+
     use AnyEvent;
     use AnyEvent::Strict;
     use Project::Feed::Types qw/MyFeed MyHTTPD FilterList/;
     use Project::Feed::Feed;
     use Project::Feed::HTTPD;
-    
+
     has 'httpd' => (
         is => 'ro',
         isa => 'Project::Feed::HTTPD',
@@ -20,12 +20,12 @@ role Project::Feed {
         return Project::Feed::HTTPD->new();
     }
     has 'interval' => (is => 'ro', isa => 'Int');
-    
+
     has 'condvar' => (
-        is => 'ro', default => sub { AnyEvent->condvar }, handles => [qw/wait broadcast/] 
+        is => 'ro', default => sub { AnyEvent->condvar }, handles => [qw/wait broadcast/]
     );
     has 'filter'   => (is => 'ro', isa => FilterList, coerce => 1);
-    
+
     has 'feeds' => (is => 'ro', isa => 'Maybe[ArrayRef]', required => 0, predicate => 'has_feeds', );
     has '_feeds' => (
         is => 'ro', isa => 'ArrayRef', lazy => 1, builder => '_build_feed', handles => [qw/fetch/],
@@ -47,22 +47,22 @@ role Project::Feed {
         }
         return \@feeds;
     }
-    
+
 
     method start_bot() {
         # Need to make sure all connections get connected, and set up properly
         $self->httpd->setup();
-        
+
         if ($self->has_feeds) {
             $self->_feeds;
         }
 
         $self->wait;
-        
-        
+
+
         #$self->broadcast;
-        
-        
+
+
     }
 
     method new_entries($feed_reader, $new_entries, $feed) {
@@ -74,10 +74,10 @@ role Project::Feed {
                     $f->filter(@$_);
                 }
             }
-            
+
             $self->httpd->send_message($entry);
         }
-        
+
     }
 }
 

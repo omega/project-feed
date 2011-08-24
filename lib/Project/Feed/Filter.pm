@@ -46,6 +46,6 @@ class ::Filter::AuthorMap with ::Filter {
 
     method filter($hash, $entry) {
         $entry->author( $self->mapping->{ $entry->author })
-            if exists $self->mapping->{ $entry->author };
+            if ($entry->author && exists $self->mapping->{ $entry->author });
     }
 }
