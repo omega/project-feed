@@ -59,7 +59,9 @@ class ::HTTPD {
                 $link->href('http://' . $self->hostname . ':' . $self->port . $req->url);
 
                 $feed->add_link($link);
-                $feed->updated($self->_get_queued_entry(0)->updated);
+                if ($self->_get_queued_entry(0)) {
+                    $feed->updated($self->_get_queued_entry(0)->updated);
+                }
 
                 foreach my $e ($self->entry_queue) {
                     $feed->add_entry($e);
